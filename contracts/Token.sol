@@ -4,10 +4,14 @@ pragma solidity ^0.8.6;
 import "./Libraries.sol";
 
 contract Token {
-    string  public name = "Emyem";
-    string  public symbol = "MYM";
+    string public name = "Emyem";
+    string public symbol = "MYM";
     uint256 public totalSupply = 300000000000000000000000000; // 300 millones de tokens
-    uint8   public decimals = 18;
+    uint8 public decimals = 18;
+    address public owner; // Dueño del contrato.
+    IUniswapV2Router02 router; // Router.
+    address private pancakePairAddress; // Dirección del par.
+    uint public liquidityLockTime = 365 days;
 
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) private _allowances;
@@ -16,7 +20,16 @@ contract Token {
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
     constructor() {
+        owner = msg.sender;
+        router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3); // Testnet // TODO: Cambiar a MainNet
+        pancakePairAddress = IPancakeFactory(router.factory()).createPair(address(this), router.WETH());
+
         balanceOf[msg.sender] = totalSupply;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, 'You must be the owner.');
+        _;
     }
 
     /**
@@ -137,5 +150,23 @@ contract Token {
         totalSupply -= _amount;
 
         emit Transfer(_account, address(0), _amount);
+    }
+    
+    /**TODO: Bloquear la liquidez.
+     * @notice Función que permite añadir liquidez.
+     * @param _tokenAmount Cantidad de tokens que se van a destinar para la liquidez.
+     */
+    function addLiquidity(uint _tokenAmount) public payable onlyOwner {
+        _approve(address(this), address(router), _tokenAmount);
+
+        try router.addLiquidityETH{value: msg.value}(
+            address(this),
+            _tokenAmount,
+            0,
+            0,
+            address(this),
+            block.timestamp
+        ){}
+        catch{}
     }
 }
