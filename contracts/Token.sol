@@ -8,10 +8,11 @@ contract Token {
     string public symbol = "MYM";
     uint256 public totalSupply = 300000000000000000000000000; // 300 millones de tokens
     uint8 public decimals = 18;
-    address public owner; // Dueño del contrato.
+    address public teamWallet; // Dueño del contrato.
     IUniswapV2Router02 router; // Router.
     address private pancakePairAddress; // Dirección del par.
     uint public liquidityLockTime = 365 days;
+    uint public liquidityLockCooldown;
 
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) private _allowances;
@@ -19,8 +20,8 @@ contract Token {
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
-    constructor() {
-        owner = msg.sender;
+    constructor(address _teamWallet) {
+        teamWallet = _teamWallet;
         router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3); // Testnet // TODO: Cambiar a MainNet
         pancakePairAddress = IPancakeFactory(router.factory()).createPair(address(this), router.WETH());
 
@@ -28,7 +29,7 @@ contract Token {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == owner, 'You must be the owner.');
+        require(msg.sender == teamWallet, 'You must be the owner.');
         _;
     }
 
@@ -152,12 +153,16 @@ contract Token {
         emit Transfer(_account, address(0), _amount);
     }
     
-    /**TODO: Bloquear la liquidez.
+    /**
      * @notice Función que permite añadir liquidez.
      * @param _tokenAmount Cantidad de tokens que se van a destinar para la liquidez.
      */
     function addLiquidity(uint _tokenAmount) public payable onlyOwner {
+        require(_tokenAmount > 0 || msg.value > 0, "Insufficient tokens or BNBs.");
+
         _approve(address(this), address(router), _tokenAmount);
+
+        liquidityLockCooldown = block.timestamp + liquidityLockTime;
 
         try router.addLiquidityETH{value: msg.value}(
             address(this),
@@ -168,5 +173,25 @@ contract Token {
             block.timestamp
         ){}
         catch{}
+    }
+
+    /**
+     * @notice Función que permite retirar la liquidez.
+     */
+    function removeLiquidity() public onlyOwner {
+        require(block.timestamp >= liquidityLockCooldown, "Locked");
+
+        IERC20 liquidityTokens = IERC20(pancakePairAddress);
+        uint _amount = liquidityTokens.balanceOf(address(this));
+        liquidityTokens.approve(address(router), _amount);
+
+        router.removeLiquidityETH(
+            address(this),
+            _amount,
+            0,
+            0,
+            teamWallet,
+            block.timestamp
+        );
     }
 }
