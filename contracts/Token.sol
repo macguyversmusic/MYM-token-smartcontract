@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
+import "./Libraries.sol";
+
 contract Token {
-    // Variables
     string  public name = "Emyem";
     string  public symbol = "MYM";
     uint256 public totalSupply = 300000000000000000000000000; // 300 millones de tokens
@@ -11,7 +12,6 @@ contract Token {
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    // Eventos
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
