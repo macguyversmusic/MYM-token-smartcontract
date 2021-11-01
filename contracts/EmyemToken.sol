@@ -9,9 +9,12 @@ contract Emyem {
     uint256 public totalSupply = 300000000000000000000000000; // 300 millones de tokens
     uint8 public decimals = 18;
     address public teamWallet; // Dueño del contrato.
+    address private firstPresaleContract; // Dirección del contrato de la primera preventa.
+    address private secondPresaleContract; // Dirección del contrato de la segunda preventa.
+    address private teamVestingContract; // Dirección del contrato de vesting para el equipo.
     IUniswapV2Router02 router; // Router.
     address private pancakePairAddress; // Dirección del par.
-    uint public liquidityLockTime = 1 minutes; //TODO: Cambiar a 365 días.
+    uint public liquidityLockTime = 365 days; // Tiempo que va a estar bloqueada la liquidez.
     uint public liquidityLockCooldown;
 
     mapping(address => uint256) public balanceOf;
@@ -20,12 +23,23 @@ contract Emyem {
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
-    constructor(address _teamWallet) {
+    constructor(address _teamWallet, address _firstPresaleContract, address _secondPresaleContract, address _teamVestingContract) {
         teamWallet = _teamWallet;
+        firstPresaleContract = _firstPresaleContract;
+        secondPresaleContract = _secondPresaleContract;
+        teamVestingContract = _teamVestingContract;
         router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3); // Testnet // TODO: Cambiar a MainNet
         pancakePairAddress = IPancakeFactory(router.factory()).createPair(address(this), router.WETH());
 
-        balanceOf[address(this)] = totalSupply;
+        uint _firstPresaleTokens = 10000000000000000000000000;
+        uint _secondPresaleTokens = 20000000000000000000000000;
+        uint _teamVestingTokens = 45000000000000000000000000;
+        uint _contractTokens = totalSupply - (_teamVestingTokens + _firstPresaleTokens + _secondPresaleTokens);
+
+        balanceOf[firstPresaleContract] = _firstPresaleTokens;
+        balanceOf[secondPresaleContract] = _secondPresaleTokens;
+        balanceOf[teamVestingContract] = _teamVestingTokens;
+        balanceOf[address(this)] = _contractTokens;
     }
 
     modifier onlyOwner() {
