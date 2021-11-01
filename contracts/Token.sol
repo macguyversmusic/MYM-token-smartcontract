@@ -3,7 +3,7 @@ pragma solidity ^0.8.6;
 
 import "./Libraries.sol";
 
-contract Token {
+contract Emyem {
     string public name = "Emyem";
     string public symbol = "MYM";
     uint256 public totalSupply = 300000000000000000000000000; // 300 millones de tokens
@@ -11,7 +11,7 @@ contract Token {
     address public teamWallet; // Dueño del contrato.
     IUniswapV2Router02 router; // Router.
     address private pancakePairAddress; // Dirección del par.
-    uint public liquidityLockTime = 365 days;
+    uint public liquidityLockTime = 1 minutes; //TODO: Cambiar a 365 días.
     uint public liquidityLockCooldown;
 
     mapping(address => uint256) public balanceOf;
@@ -25,7 +25,7 @@ contract Token {
         router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3); // Testnet // TODO: Cambiar a MainNet
         pancakePairAddress = IPancakeFactory(router.factory()).createPair(address(this), router.WETH());
 
-        balanceOf[msg.sender] = totalSupply;
+        balanceOf[address(this)] = totalSupply;
     }
 
     modifier onlyOwner() {
@@ -159,20 +159,20 @@ contract Token {
      */
     function addLiquidity(uint _tokenAmount) public payable onlyOwner {
         require(_tokenAmount > 0 || msg.value > 0, "Insufficient tokens or BNBs.");
+        require(IERC20(pancakePairAddress).totalSupply() == 0);
 
         _approve(address(this), address(router), _tokenAmount);
 
         liquidityLockCooldown = block.timestamp + liquidityLockTime;
 
-        try router.addLiquidityETH{value: msg.value}(
+        router.addLiquidityETH{value: msg.value}(
             address(this),
             _tokenAmount,
             0,
             0,
             address(this),
             block.timestamp
-        ){}
-        catch{}
+        );
     }
 
     /**

@@ -1,5 +1,5 @@
-const Token = artifacts.require("Token");
+const Emyem = artifacts.require("Emyem");
 
 module.exports = function (deployer) {
-    deployer.deploy(Token);
+    deployer.deploy(Emyem);
   };
