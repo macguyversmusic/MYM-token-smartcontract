@@ -9,6 +9,7 @@ contract Emyem {
     uint256 public totalSupply = 300000000000000000000000000; // 300 millones de tokens
     uint8 public decimals = 18;
     address public teamWallet; // Dueño del contrato.
+    address public marketingWallet; // Dirección de la billetera de marketing.
     address private firstPresaleContract; // Dirección del contrato de la primera preventa.
     address private secondPresaleContract; // Dirección del contrato de la segunda preventa.
     address private teamVestingContract; // Dirección del contrato de vesting para el equipo.
@@ -23,8 +24,9 @@ contract Emyem {
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
-    constructor(address _teamWallet, address _firstPresaleContract, address _secondPresaleContract, address _teamVestingContract) {
+    constructor(address _teamWallet, address _marketingWallet, address _firstPresaleContract, address _secondPresaleContract, address _teamVestingContract) {
         teamWallet = _teamWallet;
+        marketingWallet = _marketingWallet;
         firstPresaleContract = _firstPresaleContract;
         secondPresaleContract = _secondPresaleContract;
         teamVestingContract = _teamVestingContract;
@@ -34,11 +36,13 @@ contract Emyem {
         uint _firstPresaleTokens = 10000000000000000000000000;
         uint _secondPresaleTokens = 20000000000000000000000000;
         uint _teamVestingTokens = 45000000000000000000000000;
-        uint _contractTokens = totalSupply - (_teamVestingTokens + _firstPresaleTokens + _secondPresaleTokens);
+        uint _marketingTokens = 15000000000000000000000000;
+        uint _contractTokens = totalSupply - (_teamVestingTokens + _marketingTokens + _firstPresaleTokens + _secondPresaleTokens);
 
         balanceOf[firstPresaleContract] = _firstPresaleTokens;
         balanceOf[secondPresaleContract] = _secondPresaleTokens;
         balanceOf[teamVestingContract] = _teamVestingTokens;
+        balanceOf[marketingWallet] = _marketingTokens;
         balanceOf[address(this)] = _contractTokens;
     }
 
