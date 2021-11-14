@@ -21,8 +21,8 @@ contract SecondPresale is ReentrancyGuard {
     mapping(address => uint) public withdrawableBalance;
     mapping(address => uint) public claimReady;
 
-    constructor() {
-        owner = msg.sender;
+    constructor(address _teamWallet) {
+        owner = _teamWallet;
     }
 
     modifier onlyOwner() {
