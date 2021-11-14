@@ -10,10 +10,10 @@ module.exports = async function (deployer) {
   await deployer.deploy(SecondPresale);
   const secondPresale = await SecondPresale.deployed();
 
-  await deployer.deploy(TeamVesting, "0x1a84F1f9CE6f4bF0FD2b1B4689Db53776e64bF1c"); // TODO: Cambiar la wallet del equipo.
+  await deployer.deploy(TeamVesting, "0x21C3bBEEd8DeA53F0D5751BF0687822c9Bb57b42");
   const teamVesting = await TeamVesting.deployed();
 
-  await deployer.deploy(Emyem, "0x1a84F1f9CE6f4bF0FD2b1B4689Db53776e64bF1c", firstPresale.address, secondPresale.address, teamVesting.address); // TODO: Cambiar la wallet del equipo.
+  await deployer.deploy(Emyem, "0x21C3bBEEd8DeA53F0D5751BF0687822c9Bb57b42", "0x659CeDea7d1988d96e3CA05A13AF215CC27A4710", firstPresale.address, secondPresale.address, teamVesting.address);
   const emyem = await Emyem.deployed();
 
   await firstPresale.setToken(emyem.address);
