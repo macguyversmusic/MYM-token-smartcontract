@@ -30,7 +30,7 @@ contract Emyem {
         firstPresaleContract = _firstPresaleContract;
         secondPresaleContract = _secondPresaleContract;
         teamVestingContract = _teamVestingContract;
-        router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3); // Testnet // TODO: Cambiar a MainNet
+        router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
         pancakePairAddress = IPancakeFactory(router.factory()).createPair(address(this), router.WETH());
 
         uint _firstPresaleTokens = 10000000000000000000000000;
