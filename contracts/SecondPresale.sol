@@ -12,7 +12,7 @@ contract SecondPresale is ReentrancyGuard {
     uint public ending; // Tiempo que va finalizar la preventa.
     bool public presaleStarted = false; // Indica si la preventa ha sido iniciada o no.
     address public deadWallet = 0x000000000000000000000000000000000000dEaD; // Wallet de quemado.
-    uint public cooldownTime = 5 minutes;
+    uint public cooldownTime = 30 days;
     uint public tokensSold;
 
     mapping(address => bool) public whitelist; // Whitelist de inversores permitidos en la preventa.

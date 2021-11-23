@@ -7,7 +7,7 @@ import "./Libraries.sol";
 contract TeamVesting is ReentrancyGuard {
     IERC20 public token;
     address public teamWallet; // Wallet del equipo.
-    uint public cooldownTime = 5 minutes; // Tiempo de cooldown que va a tener el claim.
+    uint public cooldownTime = 30 days; // Tiempo de cooldown que va a tener el claim.
     uint public claimReady; // Guarda el tiempo en el que el usuario podrá hacer el próximo claim.
     bool private tokenAvailable = false;
     uint public initialContractBalance; // Initial contract balance.
