@@ -7,9 +7,11 @@ import "./Libraries.sol";
 contract TeamVesting is ReentrancyGuard {
     IERC20 public token;
     address public teamWallet; // Wallet del equipo.
-    uint public cooldownTime = 30 days; // Tiempo de cooldown que va a tener el claim.
+    uint public cooldownTime = 5 minutes; // Tiempo de cooldown que va a tener el claim.
     uint public claimReady; // Guarda el tiempo en el que el usuario podrá hacer el próximo claim.
     bool private tokenAvailable = false;
+    uint public initialContractBalance; // Initial contract balance.
+    bool private initialized; // Checks if the variable initializedContractBalance has been defined.
 
     constructor(address _teamWallet) {
         teamWallet = _teamWallet;
@@ -50,13 +52,17 @@ contract TeamVesting is ReentrancyGuard {
      */
     function claimTokens() public onlyOwner nonReentrant {
         require(claimReady <= block.timestamp, "You can't claim now.");
-        uint _contractBalance = token.balanceOf(address(this));
-        require(_contractBalance > 0, "Insufficient Balance.");
+        require(token.balanceOf(address(this)) > 0, "Insufficient Balance.");
 
-        uint _withdrawableBalance = mulScale(_contractBalance, 833, 10000); // 833 basis points = 8,33%.
+        if(!initialized) {
+            initialContractBalance = token.balanceOf(address(this));
+            initialized = true;
+        }
 
-        if(_contractBalance <= _withdrawableBalance) {
-            token.transfer(teamWallet, _contractBalance);
+        uint _withdrawableBalance = mulScale(initialContractBalance, 833, 10000); // 833 basis points = 8,33%.
+
+        if(token.balanceOf(address(this)) <= _withdrawableBalance) {
+            token.transfer(teamWallet, token.balanceOf(address(this)));
         } else {
             claimReady = block.timestamp + cooldownTime;
 
